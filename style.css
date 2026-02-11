@@ -39,6 +39,7 @@ main {
 
 /* Screens */
 #joinScreen,
+#nameScreen,
 #waitingScreen,
 #gameScreen {
     background: #fff;
@@ -55,7 +56,7 @@ main {
     display: none !important;
 }
 
-/* Inputs & buttons */
+/* Room input */
 #roomInput {
     width: 60%;
     max-width: 300px;
@@ -70,12 +71,31 @@ main {
     display: block;
     margin: 0 auto;
 }
-
 #roomInput:focus {
     border-color: #2575fc;
     outline: none;
 }
 
+/* Name input */
+#nameInput {
+    width: 100%;
+    font-size: 2.5rem;
+    padding: 1rem;
+    letter-spacing: 0.2rem;
+    text-align: center;
+    text-transform: uppercase;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    transition: border 0.2s;
+    display: block;
+    margin: 0 auto;
+}
+#nameInput:focus {
+    border-color: #2575fc;
+    outline: none;
+}
+
+/* Buttons */
 button {
     padding: 0.8rem 1.2rem;
     font-size: 1rem;

@@ -4,13 +4,19 @@ const socket = io(SERVER_URL);
 
 // DOM
 const joinScreen = document.getElementById("joinScreen");
-const waitingScreen = document.getElementById("waitingScreen");
-const gameScreen = document.getElementById("gameScreen");
-
 const roomInput = document.getElementById("roomInput");
 const joinBtn = document.getElementById("joinBtn");
 const joinLog = document.getElementById("joinLog");
+
+const nameScreen = document.getElementById("nameScreen");
+const nameInput = document.getElementById("nameInput");
+const nameBtn = document.getElementById("nameBtn");
+const nameLog = document.getElementById("nameLog");
+
+const waitingScreen = document.getElementById("waitingScreen");
 const playerList = document.getElementById("playerList");
+
+const gameScreen = document.getElementById("gameScreen");
 
 // Helpers
 function log(message) {
@@ -28,9 +34,12 @@ function showScreen(screen) {
 
 function updatePlayerList(players) {
     playerList.innerHTML = "";
-    players.forEach((id, i) => {
+
+    players.forEach((player, i) => {
         const li = document.createElement("li");
-        li.textContent = `Player ${i+1} (${id.substring(0, 5)})`;
+        li.textContent = player.name
+            ? player.name
+            : `Player ${i + 1}`;
         playerList.appendChild(li);
     });
 }
@@ -39,16 +48,38 @@ function updatePlayerList(players) {
 joinBtn.addEventListener("click", () => {
     const roomCode = roomInput.value.trim().toUpperCase();
     if (!roomCode) return alert("Enter room code!");
+
     socket.emit("JOIN_ROOM", { roomCode });
+});
+
+nameBtn.addEventListener("click", () => {
+    const playerName = nameInput.value.trim();
+    if (!playerName) return alert("Enter your name!");
+
+    socket.emit("SET_NAME", { playerName });
+    nameScreen.classList.add("hidden");
+    showScreen(waitingScreen);
+});
+
+roomInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        joinBtn.click(); // Join on Enter-key
+    }
+});
+
+nameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        nameBtn.click(); // Continue on Enter-key
+    }
 });
 
 // Socket handlers
 socket.on("connect", () => log(`✅ Connected with id ${socket.id}`));
 
-socket.on("ROOM_JOINED", ({ roomCode, players }) => {
-    log(`✅ Joined room ${roomCode}`);
-    updatePlayerList(players);
-    showScreen(waitingScreen);
+socket.on("ROOM_JOINED", ({ roomCode }) => {
+    log(`Room ${roomCode} exists! Enter your name...`);
+    joinScreen.classList.add("hidden");
+    nameScreen.classList.remove("hidden");
 });
 
 socket.on("PLAYER_JOINED", ({ players }) => {
