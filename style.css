@@ -58,7 +58,7 @@ main {
 
 /* Room input */
 #roomInput {
-    width: 60%;
+    width: 100%;
     max-width: 300px;
     font-size: 2.5rem;
     padding: 1rem;
@@ -79,8 +79,8 @@ main {
 /* Name input */
 #nameInput {
     width: 100%;
-    font-size: 2.5rem;
-    padding: 1rem;
+    font-size: 2rem;
+    padding: 1.5rem;
     letter-spacing: 0.2rem;
     text-align: center;
     text-transform: uppercase;
@@ -97,8 +97,10 @@ main {
 
 /* Buttons */
 button {
+    width: 60%;
+    margin: 0 auto;
     padding: 0.8rem 1.2rem;
-    font-size: 1rem;
+    font-size: 2rem;
     cursor: pointer;
     background-color: #2575fc;
     color: #fff;
