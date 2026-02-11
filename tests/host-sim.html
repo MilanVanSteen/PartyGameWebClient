@@ -38,13 +38,8 @@
 
         // Listen to events
         socket.on("PLAYER_JOINED", ({ players }) => {
-            log("👤 Players joined: " + players.forEach((player, i) => {
-                const li = document.createElement("li");
-                li.textContent = player.name
-                    ? player.name
-                    : `Player ${i + 1}`;
-                playerList.appendChild(li);
-            }));
+            const names = players.map((player, i) => player.name || `Player ${i + 1}`);
+            log("👤 Players joined: " + names.join(", "));
         });
         socket.on("GAME_STARTED", () => log("🎮 Game started!"));
     </script>

@@ -26,6 +26,7 @@ function log(message) {
 
 function showScreen(screen) {
     joinScreen.classList.add("hidden");
+    nameScreen.classList.add("hidden");
     waitingScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
 
@@ -54,11 +55,13 @@ joinBtn.addEventListener("click", () => {
 
 nameBtn.addEventListener("click", () => {
     const playerName = nameInput.value.trim();
-    if (!playerName) return alert("Enter your name!");
+    if (!playerName) return;
 
     socket.emit("SET_NAME", { playerName });
-    nameScreen.classList.add("hidden");
-    showScreen(waitingScreen);
+});
+
+nameInput.addEventListener("input", () => {
+    nameLog.textContent = "";
 });
 
 roomInput.addEventListener("keydown", (e) => {
@@ -78,13 +81,14 @@ socket.on("connect", () => log(`✅ Connected with id ${socket.id}`));
 
 socket.on("ROOM_JOINED", ({ roomCode }) => {
     log(`Room ${roomCode} exists! Enter your name...`);
-    joinScreen.classList.add("hidden");
-    nameScreen.classList.remove("hidden");
+    showScreen(nameScreen);
 });
 
 socket.on("PLAYER_JOINED", ({ players }) => {
     log("👤 A new player joined");
     updatePlayerList(players);
+    nameScreen.classList.add("hidden");
+    showScreen(waitingScreen);
 });
 
 socket.on("PLAYER_LEFT", ({ players }) => {
@@ -95,4 +99,9 @@ socket.on("PLAYER_LEFT", ({ players }) => {
 socket.on("GAME_STARTED", () => {
     log("🚀 Game started!");
     showScreen(gameScreen);
+});
+
+socket.on("NAME_ERROR", ({ message }) => {
+    nameLog.textContent = message;
+    nameLog.style.color = "red";
 });
