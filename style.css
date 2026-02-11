@@ -107,10 +107,25 @@ button {
     border-radius: 10px;
     transition: background-color 0.2s, transform 0.1s;
 }
-
 button:hover {
     background-color: #1d11cb;
     transform: scale(1.05);
+}
+
+@media (min-width: 768px){
+    #roomInput {
+        padding: 0.5rem;
+    }
+
+    #nameInput {
+        padding: 0.5rem;
+    }
+
+    button {
+        width: 40%;
+        padding: 0.5rem;
+        font-size: 2rem;
+    }
 }
 
 /* Log section (Temp) */
