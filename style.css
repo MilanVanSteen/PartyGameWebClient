@@ -2,22 +2,18 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-.hidden {
-    display: none !important;
+    font-family: 'Segoe UI', Tahoma, Verdana, sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f2f5;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     min-height: 100vh;
     padding: 2rem;
-    color: #333;
 }
 
 /* Header */
@@ -27,8 +23,9 @@ header {
 }
 
 header h1 {
-    font-size: 2rem;
-    color: #4a90e2;
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
 }
 
 /* Main layout */
@@ -40,60 +37,72 @@ main {
     gap: 2rem;
 }
 
-/* Join/Room actions */
+/* Screens */
 #joinScreen,
 #waitingScreen,
 #gameScreen {
     background: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    transition: transform 0.2s ease, opacity 0.3s ease;
 }
 
-.room-actions,
-#joinScreen {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+.hidden {
+    display: none !important;
 }
 
-input[type="text"],
-input[type="number"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* Inputs & buttons */
+#roomInput {
+    width: 60%;
+    max-width: 300px;
+    font-size: 2.5rem;
+    padding: 1rem;
+    letter-spacing: 0.2rem;
+    text-align: center;
+    text-transform: uppercase;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    transition: border 0.2s;
+    display: block;
+    margin: 0 auto;
+}
+
+#roomInput:focus {
+    border-color: #2575fc;
+    outline: none;
 }
 
 button {
-    padding: 0.6rem 1rem;
+    padding: 0.8rem 1.2rem;
     font-size: 1rem;
     cursor: pointer;
-    background-color: #4a90e2;
+    background-color: #2575fc;
     color: #fff;
     border: none;
-    border-radius: 5px;
-    transition: background-color 0.2s;
+    border-radius: 10px;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 button:hover {
-    background-color: #357ab8;
+    background-color: #1d11cb;
+    transform: scale(1.05);
 }
 
-/* Log section */
-.log-section, 
+/* Log section (Temp) */
 #joinLog {
-    background: #fefefe;
-    border-radius: 5px;
-    padding: 0.75rem;
-    height: 150px;
+    background: #f7f7f7;
+    border-radius: 10px;
+    padding: 1rem;
+    min-height: 120px;
+    max-height: 200px;
     overflow-y: auto;
     font-family: monospace;
     font-size: 0.9rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Waiting/Player list */
@@ -105,18 +114,32 @@ button:hover {
 }
 
 #playerList li {
-    padding: 0.5rem;
-    background-color: #f0f4ff;
-    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #e1f0ff;
+    border-radius: 8px;
     text-align: center;
     font-weight: bold;
     color: #333;
 }
 
-/* Screen Headings */
+/* Headings */
 section h2 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     color: #4a90e2;
     text-align: center;
     margin-bottom: 1rem;
+}
+
+/* Smooth screen transitions */
+.fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

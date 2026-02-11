@@ -10,7 +10,7 @@
     <pre id="log"></pre>
 
     <script>
-        const SERVER_URL = "https://partygame.up.railway.app/";
+        const SERVER_URL = "https://partygameserver.up.railway.app/";
         const socket = io(SERVER_URL);
 
         const logEl = document.getElementById("log");
@@ -30,15 +30,15 @@
         });
 
         //After a 10 seconds, start the game
-        setTimeout(() => {
-            if (!ROOM_CODE) return log("⚠️ Room not created yet");
-            socket.emit("START_GAME", { roomCode: ROOM_CODE });
-            log("🚀 Starting game as host...");
-        }, 10000);
+        // setTimeout(() => {
+        //     if (!ROOM_CODE) return log("⚠️ Room not created yet");
+        //     socket.emit("START_GAME", { roomCode: ROOM_CODE });
+        //     log("🚀 Starting game as host...");
+        // }, 10000);
 
         // Listen to events
         socket.on("PLAYER_JOINED", ({ players }) => {
-            log("👤 Player joined: " + players.map(id => id.substring(0,5)).join(", "));
+            log("👤 Players joined: " + players.map(id => id.substring(0,5)).join(", "));
         });
         socket.on("GAME_STARTED", () => log("🎮 Game started!"));
     </script>
