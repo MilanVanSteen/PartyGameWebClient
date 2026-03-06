@@ -3,12 +3,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname)));
-
-// SPA fallback (optional, if you plan client-side routing)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+app.get("*", (req, res) => {res.sendFile(path.join(__dirname, "index.html"));});
 
 app.listen(PORT, () => console.log(`Frontend running on port ${PORT}`));
