@@ -1,5 +1,5 @@
 // Config
-const SERVER_URL = "https://partygameserver.up.railway.app/";
+const SERVER_URL = "https://partygame-gwgre4gjebg9h0fk.germanywestcentral-01.azurewebsites.net/";
 const socket = io(SERVER_URL);
 
 // DOM
