@@ -17,6 +17,7 @@ const waitingScreen = document.getElementById("waitingScreen");
 const playerList = document.getElementById("playerList");
 
 const gameScreen = document.getElementById("gameScreen");
+const diceValueEl = document.getElementById('diceValue');
 
 // Helpers
 function log(message) {
@@ -43,6 +44,28 @@ function updatePlayerList(players) {
             : `Player ${i + 1}`;
         playerList.appendChild(li);
     });
+}
+
+function animateDice(finalRoll, callback) { // Animate dice roll (numbers change fast, then slow down)
+    let duration = 1500; // total animation duration in ms
+    let interval = 50;   // how fast numbers change
+    let elapsed = 0;
+
+    const rollInterval = setInterval(() => {
+        const randomRoll = Math.floor(Math.random() * 6) + 1;
+        diceValueEl.textContent = randomRoll;
+
+        elapsed += interval;
+
+        // Slow down towards the end
+        if (elapsed > duration * 0.7) interval = 150;
+
+        if (elapsed >= duration) {
+            clearInterval(rollInterval);
+            diceValueEl.textContent = finalRoll;
+            if (callback) callback();
+        }
+    }, interval);
 }
 
 // Event Listeners
@@ -84,6 +107,11 @@ socket.on("ROOM_JOINED", ({ roomCode }) => {
     showScreen(nameScreen);
 });
 
+socket.on("NAME_ERROR", ({ message }) => {
+    nameLog.textContent = message;
+    nameLog.style.color = "red";
+});
+
 socket.on("PLAYER_JOINED", ({ players }) => {
     log("👤 A new player joined");
     updatePlayerList(players);
@@ -101,7 +129,26 @@ socket.on("GAME_STARTED", () => {
     showScreen(gameScreen);
 });
 
-socket.on("NAME_ERROR", ({ message }) => {
-    nameLog.textContent = message;
-    nameLog.style.color = "red";
+socket.on('DICE_ROLL_START', ({ roll }) => {
+    let current = 1;
+    let intervalTime = 50;
+    let elapsed = 0;
+    const duration = 1500;
+
+    const rollInterval = setInterval(() => {
+        diceValueEl.textContent = current;
+        current = (current % 6) + 1;
+        elapsed += intervalTime;
+
+        if (elapsed > duration * 0.7) intervalTime = 150; // slow down
+    }, intervalTime);
+    
+    setTimeout(() => {
+        clearInterval(rollInterval);
+        diceValueEl.textContent = roll;
+
+        // Notify server when animation is done
+        socket.emit("DICE_ROLL_FINISHED", { playerId: socket.id, roll });
+    }, duration);
 });
+
