@@ -17,7 +17,6 @@ const waitingScreen = document.getElementById("waitingScreen");
 const playerList = document.getElementById("playerList");
 
 const gameScreen = document.getElementById("gameScreen");
-const diceValueEl = document.getElementById('diceValue');
 const diceImage = document.getElementById("diceImage");
 const diceImages = [
     "assets/dice/dice1.png",
@@ -53,28 +52,6 @@ function updatePlayerList(players) {
             : `Player ${i + 1}`;
         playerList.appendChild(li);
     });
-}
-
-function animateDice(finalRoll, callback) { // Animate dice roll (numbers change fast, then slow down)
-    let duration = 1500; // total animation duration in ms
-    let interval = 50;   // how fast numbers change
-    let elapsed = 0;
-
-    const rollInterval = setInterval(() => {
-        const randomRoll = Math.floor(Math.random() * 6) + 1;
-        diceValueEl.textContent = randomRoll;
-
-        elapsed += interval;
-
-        // Slow down towards the end
-        if (elapsed > duration * 0.7) interval = 150;
-
-        if (elapsed >= duration) {
-            clearInterval(rollInterval);
-            diceValueEl.textContent = finalRoll;
-            if (callback) callback();
-        }
-    }, interval);
 }
 
 // Event Listeners
@@ -139,15 +116,11 @@ socket.on("GAME_STARTED", () => {
 });
 
 socket.on('DICE_ROLL_START', ({ roll }) => {
-    let current = 1;
     let intervalTime = 200;
     let elapsed = 0;
     const duration = 3000;
 
     const rollInterval = setInterval(() => {
-        diceValueEl.textContent = current;
-        current = (current % 6) + 1;
-
         diceImage.src = diceImages[Math.floor(Math.random() * 6)];
 
         // Slow down
@@ -157,8 +130,6 @@ socket.on('DICE_ROLL_START', ({ roll }) => {
     
     setTimeout(() => {
         clearInterval(rollInterval);
-
-        diceValueEl.textContent = roll;
 
         diceImage.src = diceImages[roll-1];
 
