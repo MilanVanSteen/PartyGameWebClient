@@ -140,7 +140,7 @@ socket.on("GAME_STARTED", () => {
 
 socket.on('DICE_ROLL_START', ({ roll }) => {
     let current = 1;
-    let intervalTime = 100;
+    let intervalTime = 200;
     let elapsed = 0;
     const duration = 3000;
 
