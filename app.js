@@ -18,6 +18,15 @@ const playerList = document.getElementById("playerList");
 
 const gameScreen = document.getElementById("gameScreen");
 const diceValueEl = document.getElementById('diceValue');
+const diceImage = document.getElementById("diceImage");
+const diceImages = [
+    "assets/dice/dice1.png",
+    "assets/dice/dice2.png",
+    "assets/dice/dice3.png",
+    "assets/dice/dice4.png",
+    "assets/dice/dice5.png",
+    "assets/dice/dice6.png"
+];
 
 // Helpers
 function log(message) {
@@ -133,19 +142,32 @@ socket.on('DICE_ROLL_START', ({ roll }) => {
     let current = 1;
     let intervalTime = 50;
     let elapsed = 0;
-    const duration = 1500;
+    const duration = 2500;
 
     const rollInterval = setInterval(() => {
         diceValueEl.textContent = current;
         current = (current % 6) + 1;
-        elapsed += intervalTime;
 
-        if (elapsed > duration * 0.7) intervalTime = 150; // slow down
+        diceImage.src = diceImages[Math.floor(Math.random() * 6)];
+
+        // Slow down
+        elapsed += intervalTime;
+        if (elapsed > duration * 0.7) intervalTime = 150;
     }, intervalTime);
     
     setTimeout(() => {
         clearInterval(rollInterval);
+
         diceValueEl.textContent = roll;
+
+        diceImage.src = diceImages[roll-1];
+
+        // Bounce effect
+        diceImage.style.transition = 'transform 0.1s';
+        diceImage.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+            diceImage.style.transform = 'scale(1)';
+        }, 100);
 
         // Notify server when animation is done
         socket.emit("DICE_ROLL_FINISHED", { playerId: socket.id, roll });
