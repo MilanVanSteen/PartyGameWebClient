@@ -98,6 +98,32 @@ function stopCountdown() {
     powerupTimerFill.style.width = "0%";
 }
 
+function animateDiceRoll(finalRoll) {
+    let intervalTime = 200;
+    let elapsed = 0;
+    const duration = 3000;
+
+    const rollInterval = setInterval(() => {
+        diceImage.src = diceImages[Math.floor(Math.random() * 6)];
+
+        elapsed += intervalTime;
+        if (elapsed > duration * 0.7) intervalTime = 150;
+    }, intervalTime);
+    
+    setTimeout(() => {
+        clearInterval(rollInterval);
+        diceImage.src = diceImages[finalRoll-1];
+
+        // Bounce effect
+        diceImage.style.transition = 'transform 0.1s';
+        diceImage.style.transform = 'scale(1.2)';
+        setTimeout(() => diceImage.style.transform = 'scale(1)', 100);
+
+        // Notify server when animation is done
+        socket.emit("DICE_ROLL_FINISHED", { playerId: socket.id, roll: finalRoll });
+    }, duration);
+}
+
 // Event Listeners
 joinBtn.addEventListener("click", () => {
     const roomCode = roomInput.value.trim().toUpperCase();
@@ -169,33 +195,7 @@ socket.on("GAME_STARTED", () => {
 });
 
 socket.on('DICE_ROLL_START', ({ roll }) => {
-    let intervalTime = 200;
-    let elapsed = 0;
-    const duration = 3000;
-
-    const rollInterval = setInterval(() => {
-        diceImage.src = diceImages[Math.floor(Math.random() * 6)];
-
-        // Slow down
-        elapsed += intervalTime;
-        if (elapsed > duration * 0.7) intervalTime = 150;
-    }, intervalTime);
-    
-    setTimeout(() => {
-        clearInterval(rollInterval);
-
-        diceImage.src = diceImages[roll-1];
-
-        // Bounce effect
-        diceImage.style.transition = 'transform 0.1s';
-        diceImage.style.transform = 'scale(1.2)';
-        setTimeout(() => {
-            diceImage.style.transform = 'scale(1)';
-        }, 100);
-
-        // Notify server when animation is done
-        socket.emit("DICE_ROLL_FINISHED", { playerId: socket.id, roll });
-    }, duration);
+    animateDiceRoll(roll);
 });
 
 socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
