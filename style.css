@@ -195,6 +195,18 @@ section h2 {
     transition: transform 0.1s;
 }
 
+#bonusText {
+    font-weight: bold;
+    color: #ffd700;
+    text-align: center;
+}
+
+#shieldText {
+    font-weight: bold;
+    color: #0022ff;
+    text-align: center;
+}
+
 /* Powerup Screen Layout */
 #powerupScreen {
     text-align: center;

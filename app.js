@@ -27,6 +27,11 @@ const diceImages = [
     "assets/dice/dice6.png"
 ];
 
+const bonusText = document.getElementById("bonusText");
+const shieldText = document.getElementById("shieldText");
+let addedStepsPending = false;
+let shieldActive = false;
+
 const powerupScreen = document.getElementById("powerupScreen");
 const powerupTimerText = document.getElementById("powerupTimerText");
 const powerupTimerFill = document.getElementById("powerupTimerFill");
@@ -199,6 +204,11 @@ socket.on('DICE_ROLL_START', ({ roll }) => {
 });
 
 socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
+    // Remove +2 text
+    if (addedStepsPending) {
+        bonusText.classList.add("hidden");
+        addedStepsPending = false;
+    }
 
     showScreen(powerupScreen);
 
@@ -219,12 +229,26 @@ socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
     inventory.forEach((powerup, index) => {
 
         const li = document.createElement("li");
-
         const btn = document.createElement("button");
 
         btn.textContent = powerup;
 
         btn.onclick = () => {
+            // AddedSteps (locally)
+            if (powerup === "AddedSteps") {
+
+                addedStepsPending = true;
+
+                bonusText.classList.remove("hidden");
+            }
+
+            // Shield (locally)
+            if (powerup === "Shield") {
+
+                shieldActive = true;
+
+                shieldText.classList.remove("hidden");
+            }
 
             socket.emit("POWERUP_SELECTED", {
                 playerId: socket.id,
@@ -237,6 +261,11 @@ socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
         li.appendChild(btn);
         powerupList.appendChild(li);
     });
+});
+
+socket.on("SHIELD_EXPIRED", () => {
+    shieldActive = false;
+    shieldText.classList.add("hidden");
 });
 
 socket.on("POWERUP_PHASE_END", () => {
