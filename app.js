@@ -27,6 +27,13 @@ const diceImages = [
     "assets/dice/dice6.png"
 ];
 
+const powerupScreen = document.getElementById("powerupScreen");
+const powerupTimerText = document.getElementById("powerupTimerText");
+const powerupTimerFill = document.getElementById("powerupTimerFill");
+let countdownInterval = null;
+const powerupList = document.getElementById("powerupList");
+const skipBtn = document.getElementById("skipPowerupBtn");
+
 // Helpers
 function log(message) {
     joinLog.textContent += message + "\n";
@@ -38,6 +45,7 @@ function showScreen(screen) {
     nameScreen.classList.add("hidden");
     waitingScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
+    powerupScreen.classList.add("hidden");
 
     screen.classList.remove("hidden");
 }
@@ -52,6 +60,42 @@ function updatePlayerList(players) {
             : `Player ${i + 1}`;
         playerList.appendChild(li);
     });
+}
+
+function startCountdown(duration) {
+
+    let timeLeft = Math.floor(duration);
+
+    powerupTimerText.textContent = timeLeft;
+    powerupTimerFill.style.width = "100%";
+
+    countdownInterval = setInterval(() => {
+        timeLeft--;
+        powerupTimerText.textContent = timeLeft;
+
+        // Shrink bar
+        const percent = (timeLeft / duration) * 100;
+
+        powerupTimerFill.style.width = percent + "%";
+
+        if (timeLeft <= 0) {
+            stopCountdown();
+
+            socket.emit("POWERUP_TIMER_FINISHED", { playerId: socket.id });
+        }
+
+    }, 1000);
+}
+
+function stopCountdown() {
+
+    if (countdownInterval) 
+    {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+
+    powerupTimerFill.style.width = "0%";
 }
 
 // Event Listeners
@@ -84,6 +128,15 @@ nameInput.addEventListener("keydown", (e) => {
         nameBtn.click(); // Continue on Enter-key
     }
 });
+
+skipBtn.onclick = () => {
+
+    socket.emit("POWERUP_SKIPPED", {
+        playerId: socket.id
+    });
+
+    showScreen(gameScreen);
+};
 
 // Socket handlers
 socket.on("connect", () => log(`✅ Connected with id ${socket.id}`));
@@ -143,5 +196,51 @@ socket.on('DICE_ROLL_START', ({ roll }) => {
         // Notify server when animation is done
         socket.emit("DICE_ROLL_FINISHED", { playerId: socket.id, roll });
     }, duration);
+});
+
+socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
+
+    showScreen(powerupScreen);
+
+    powerupList.innerHTML = "";
+
+    startCountdown(duration);
+
+    // Auto skip if empty
+    if (!inventory || inventory.length < 1) {
+
+        socket.emit("POWERUP_SKIPPED", {
+            playerId: socket.id
+        });
+
+        return;
+    }
+
+    inventory.forEach((powerup, index) => {
+
+        const li = document.createElement("li");
+
+        const btn = document.createElement("button");
+
+        btn.textContent = powerup;
+
+        btn.onclick = () => {
+
+            socket.emit("POWERUP_SELECTED", {
+                playerId: socket.id,
+                inventoryIndex: index
+            });
+
+            showScreen(gameScreen);
+        };
+
+        li.appendChild(btn);
+        powerupList.appendChild(li);
+    });
+});
+
+socket.on("POWERUP_PHASE_END", () => {
+    stopCountdown();
+    showScreen(gameScreen);
 });
 

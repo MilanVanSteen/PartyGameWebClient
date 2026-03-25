@@ -41,7 +41,8 @@ main {
 #joinScreen,
 #nameScreen,
 #waitingScreen,
-#gameScreen {
+#gameScreen,
+#powerupScreen {
     background: #fff;
     border-radius: 15px;
     padding: 2rem;
@@ -128,7 +129,7 @@ button:hover {
     }
 }
 
-/* Log section (Temp) */
+/* Log section (Temporary) */
 #joinLog {
     background: #f7f7f7;
     border-radius: 10px;
@@ -178,4 +179,78 @@ section h2 {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Dice container */
+#diceContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0;
+}
+
+/* Dice image styling */
+#diceImage {
+    width: 120px;
+    transition: transform 0.1s;
+}
+
+/* Powerup Screen Layout */
+#powerupScreen {
+    text-align: center;
+}
+
+/* Powerup list centered */
+#powerupList {
+    list-style: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* Powerup buttons full width */
+#powerupList button {
+    width: 100%;
+}
+
+/* ===== POWERUP TIMER ===== */
+#powerupTimerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+/* Big countdown number */
+#powerupTimerText {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #2575fc;
+}
+
+/* Progress bar background */
+#powerupTimerBar {
+    width: 100%;
+    height: 14px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Shrinking fill */
+#powerupTimerFill {
+    height: 100%;
+    width: 100%;
+
+    background: linear-gradient(
+        90deg,
+        #2575fc,
+        #6a11cb
+    );
+
+    transition: width 1s linear;
 }

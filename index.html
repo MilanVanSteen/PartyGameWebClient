@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Party Game - Student</title>
+    <title>VocaParty - Student</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header><h1>Party Game</h1></header>
+    <header><h1>VocaParty</h1></header>
 
     <main>
         <!-- Join Room Screen -->
@@ -31,11 +31,28 @@
 
         <!-- In-game Screen -->
         <section id="gameScreen" class="hidden">
-            <h2>Game Started!</h2>
-
             <div id="diceContainer">
                 <img id="diceImage" src="assets/dice/dice1.png" width="80" alt="dice">
             </div>
+        </section>
+
+        <!-- PowerUp Screen -->
+        <section id="powerupScreen" class="hidden">
+            <h2>Use a Powerup</h2>
+            <div id="powerupTimerContainer">
+                <div id="powerupTimerText">
+                    10
+                </div>
+                <div id="powerupTimerBar">
+                    <div id="powerupTimerFill"></div>
+                </div>
+            </div>
+
+            <ul id="powerupList"></ul>
+
+            <button id="skipPowerupBtn">
+                Skip
+            </button>
         </section>
     </main>
 
