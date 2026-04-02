@@ -6,7 +6,6 @@ const socket = io(SERVER_URL);
 const joinScreen = document.getElementById("joinScreen");
 const roomInput = document.getElementById("roomInput");
 const joinBtn = document.getElementById("joinBtn");
-const joinLog = document.getElementById("joinLog");
 
 const nameScreen = document.getElementById("nameScreen");
 const nameInput = document.getElementById("nameInput");
@@ -40,11 +39,6 @@ const powerupList = document.getElementById("powerupList");
 const skipBtn = document.getElementById("skipPowerupBtn");
 
 // Helpers
-function log(message) {
-    joinLog.textContent += message + "\n";
-    joinLog.scrollTop = joinLog.scrollHeight;
-}
-
 function showScreen(screen) {
     joinScreen.classList.add("hidden");
     nameScreen.classList.add("hidden");
@@ -173,7 +167,6 @@ skipBtn.onclick = () => {
 socket.on("connect", () => log(`✅ Connected with id ${socket.id}`));
 
 socket.on("ROOM_JOINED", ({ roomCode }) => {
-    log(`Room ${roomCode} exists! Enter your name...`);
     showScreen(nameScreen);
 });
 
@@ -183,19 +176,16 @@ socket.on("NAME_ERROR", ({ message }) => {
 });
 
 socket.on("PLAYER_JOINED", ({ players }) => {
-    log("👤 A new player joined");
     updatePlayerList(players);
     nameScreen.classList.add("hidden");
     showScreen(waitingScreen);
 });
 
 socket.on("PLAYER_LEFT", ({ players }) => {
-    log("👋 A player left");
     updatePlayerList(players);
 });
 
 socket.on("GAME_STARTED", () => {
-    log("🚀 Game started!");
     showScreen(gameScreen);
 });
 
