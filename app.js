@@ -38,6 +38,12 @@ let countdownInterval = null;
 const powerupList = document.getElementById("powerupList");
 const skipBtn = document.getElementById("skipPowerupBtn");
 
+const minigameScreen = document.getElementById("minigameScreen");
+const minigameTimerText = document.getElementById("minigameTimerText");
+const minigameTimerFill = document.getElementById("minigameTimerFill");
+const finishMinigameBtn = document.getElementById("finishMinigameBtn");
+let minigameInterval = null;
+
 // Helpers
 function showScreen(screen) {
     joinScreen.classList.add("hidden");
@@ -45,6 +51,7 @@ function showScreen(screen) {
     waitingScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
     powerupScreen.classList.add("hidden");
+    minigameScreen.classList.add("hidden");
 
     screen.classList.remove("hidden");
 }
@@ -123,6 +130,52 @@ function animateDiceRoll(finalRoll) {
     }, duration);
 }
 
+// Minigame
+function startMinigameTimer(duration) {
+
+    let timeLeft = Math.floor(duration);
+
+    minigameTimerText.textContent = timeLeft;
+    minigameTimerFill.style.width = "100%";
+
+    minigameInterval = setInterval(() => {
+
+        timeLeft--;
+
+        minigameTimerText.textContent = timeLeft;
+
+        const percent =
+            (timeLeft / duration) * 100;
+
+        minigameTimerFill.style.width =
+            percent + "%";
+
+        if (timeLeft <= 0) {
+
+            stopMinigameTimer();
+
+            socket.emit(
+                "MINIGAME_FORCE_FINISH",
+                {
+                    playerId: socket.id,
+                    correct: false
+                }
+            );
+        }
+
+    }, 1000);
+}
+
+function stopMinigameTimer() {
+
+    if (minigameInterval) {
+        clearInterval(minigameInterval);
+        minigameInterval = null;
+    }
+
+    minigameTimerFill.style.width = "0%";
+}
+
 // Event Listeners
 joinBtn.addEventListener("click", () => {
     const roomCode = roomInput.value.trim().toUpperCase();
@@ -159,6 +212,21 @@ skipBtn.onclick = () => {
     socket.emit("POWERUP_SKIPPED", {
         playerId: socket.id
     });
+
+    showScreen(gameScreen);
+};
+
+finishMinigameBtn.onclick = () => {
+
+    stopMinigameTimer();
+
+    socket.emit(
+        "MINIGAME_FINISHED",
+        {
+            playerId: socket.id,
+            correct: true
+        }
+    );
 
     showScreen(gameScreen);
 };
@@ -260,6 +328,29 @@ socket.on("SHIELD_EXPIRED", () => {
 
 socket.on("POWERUP_PHASE_END", () => {
     stopCountdown();
+    showScreen(gameScreen);
+});
+
+socket.on("MINIGAME_START", ({ minigame, duration }) => {
+        console.log(
+            "Starting minigame:",
+            minigame
+        );
+
+        showScreen(minigameScreen);
+
+        startMinigameTimer(duration);
+
+        // Later:
+        // loadMinigame(minigame);
+    }
+);
+
+socket.on("MINIGAME_ENDED", () => {
+    console.log("Minigame ended");
+
+    stopMinigameTimer();
+
     showScreen(gameScreen);
 });
 
