@@ -41,8 +41,8 @@ const skipBtn = document.getElementById("skipPowerupBtn");
 const minigameScreen = document.getElementById("minigameScreen");
 const minigameTimerText = document.getElementById("minigameTimerText");
 const minigameTimerFill = document.getElementById("minigameTimerFill");
-const finishMinigameBtn = document.getElementById("finishMinigameBtn");
 let minigameInterval = null;
+const minigameContent = document.getElementById("minigameContent");
 
 // Helpers
 function showScreen(screen) {
@@ -167,13 +167,62 @@ function startMinigameTimer(duration) {
 }
 
 function stopMinigameTimer() {
-
     if (minigameInterval) {
         clearInterval(minigameInterval);
         minigameInterval = null;
     }
 
     minigameTimerFill.style.width = "0%";
+}
+
+function loadMinigame(type)
+{
+    minigameContent.innerHTML = "";
+
+    // Temp only game
+    createTypingMinigame();
+
+    // if (type === "TypingAnswer")
+    // {
+    //     createTypingMinigame();
+    // }
+}
+
+function createTypingMinigame()
+{
+    const question = document.createElement("question");
+    input.className = "minigame-question";
+    question.textContent = "Translate: Apple";
+
+    const input = document.createElement("input");
+    input.className = "minigame-input";
+    input.placeholder = "Type your answer...";
+
+    const submitBtn = document.createElement("button");
+    submitBtn.className = "minigame-submit";
+    submitBtn.textContent = "Submit";
+
+    submitBtn.onclick = () =>
+    {
+        stopMinigameTimer();
+
+        const answer = input.value.trim().toLowerCase();
+        const correct = answer === "appel";
+
+        socket.emit(
+            "MINIGAME_FINISHED",
+            {
+                playerId: socket.id,
+                correct: correct
+            }
+        );
+
+        showScreen(gameScreen);
+    };
+
+    minigameContent.appendChild(question);
+    minigameContent.appendChild(input);
+    minigameContent.appendChild(submitBtn);
 }
 
 // Event Listeners
@@ -212,21 +261,6 @@ skipBtn.onclick = () => {
     socket.emit("POWERUP_SKIPPED", {
         playerId: socket.id
     });
-
-    showScreen(gameScreen);
-};
-
-finishMinigameBtn.onclick = () => {
-
-    stopMinigameTimer();
-
-    socket.emit(
-        "MINIGAME_FINISHED",
-        {
-            playerId: socket.id,
-            correct: true
-        }
-    );
 
     showScreen(gameScreen);
 };
@@ -294,17 +328,13 @@ socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
         btn.onclick = () => {
             // AddedSteps (locally)
             if (powerup === "AddedSteps") {
-
                 addedStepsPending = true;
-
                 bonusText.classList.remove("hidden");
             }
 
             // Shield (locally)
             if (powerup === "Shield") {
-
                 shieldActive = true;
-
                 shieldText.classList.remove("hidden");
             }
 
@@ -332,19 +362,14 @@ socket.on("POWERUP_PHASE_END", () => {
 });
 
 socket.on("MINIGAME_START", ({ minigame, duration }) => {
-        console.log(
-            "Starting minigame:",
-            minigame
-        );
+    console.log("Starting minigame:", minigame);
 
-        showScreen(minigameScreen);
+    showScreen(minigameScreen);
 
-        startMinigameTimer(duration);
+    startMinigameTimer(duration);
 
-        // Later:
-        // loadMinigame(minigame);
-    }
-);
+    loadMinigame(minigame);
+});
 
 socket.on("MINIGAME_ENDED", () => {
     console.log("Minigame ended");

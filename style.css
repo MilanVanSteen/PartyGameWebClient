@@ -293,3 +293,115 @@ section h2 {
 
     transition: width 1s linear;
 }
+
+/* ===== MINIGAME CONTENT ===== */
+#minigameContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 1.5rem;
+
+    width: 100%;
+
+    padding-top: 1rem;
+}
+
+/* Question text */
+.minigame-question {
+
+    font-size: 2rem;
+    font-weight: bold;
+
+    text-align: center;
+
+    padding: 1.5rem;
+
+    width: 100%;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #f5f7ff,
+        #e6ecff
+    );
+
+    box-shadow:
+        0 6px 12px rgba(0,0,0,0.1);
+}
+
+/* Highlighted keyword */
+.minigame-highlight {
+
+    color: #6a11cb;
+
+    font-size: 2.2rem;
+}
+
+/* Inputs */
+.minigame-input {
+
+    width: 100%;
+
+    font-size: 2rem;
+
+    padding: 1rem;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    border: 2px solid #ccc;
+
+    transition:
+        border 0.2s,
+        box-shadow 0.2s;
+}
+
+.minigame-input:focus {
+
+    border-color: #2575fc;
+
+    box-shadow:
+        0 0 10px rgba(37,117,252,0.3);
+
+    outline: none;
+}
+
+/* Submit buttons */
+.minigame-submit {
+
+    width: 100%;
+
+    font-size: 2rem;
+
+    padding: 1.2rem;
+
+    font-weight: bold;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #2575fc,
+        #6a11cb
+    );
+
+    color: white;
+
+    border: none;
+
+    cursor: pointer;
+}
+
+.minigame-submit:hover {
+
+    transform: scale(1.04);
+
+    background: linear-gradient(
+        135deg,
+        #1d5ee0,
+        #5b0fb0
+    );
+}
