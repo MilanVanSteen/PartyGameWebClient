@@ -69,6 +69,7 @@ function updatePlayerList(players) {
 }
 
 function startCountdown(duration) {
+    stopMinigameTimer();
 
     let timeLeft = Math.floor(duration);
 
@@ -144,23 +145,14 @@ function startMinigameTimer(duration) {
 
         minigameTimerText.textContent = timeLeft;
 
-        const percent =
-            (timeLeft / duration) * 100;
+        const percent = (timeLeft / duration) * 100;
 
-        minigameTimerFill.style.width =
-            percent + "%";
+        minigameTimerFill.style.width = percent + "%";
 
         if (timeLeft <= 0) {
-
             stopMinigameTimer();
 
-            socket.emit(
-                "MINIGAME_FORCE_FINISH",
-                {
-                    playerId: socket.id,
-                    correct: false
-                }
-            );
+            socket.emit("MINIGAME_FORCE_FINISH", { playerId: socket.id, correct: false });
         }
 
     }, 1000);
@@ -179,19 +171,35 @@ function loadMinigame(type)
 {
     minigameContent.innerHTML = "";
 
-    // Temp only game
-    createTypingMinigame();
-
-    // if (type === "TypingAnswer")
-    // {
-    //     createTypingMinigame();
-    // }
+    switch (type)
+    {
+        case "TypingAnswer":
+            createTypingMinigame();
+            break;
+        
+        case "MultipleChoice":
+            createMultipleChoiceMinigame();
+            break;
+        
+        case "FillInBlank":
+            createFillInBlankMinigame();
+            break;
+        
+        case "SpotError":
+            createSpotErrorMinigame();
+            break;
+        
+        default:
+            console.warn("Unknown minigame:", type);
+            createTypingMinigame();
+            break;
+    }
 }
 
 function createTypingMinigame()
 {
-    const question = document.createElement("question");
-    input.className = "minigame-question";
+    const question = document.createElement("div");
+    question.className = "minigame-question";
     question.textContent = "Translate: Apple";
 
     const input = document.createElement("input");
@@ -204,8 +212,6 @@ function createTypingMinigame()
 
     submitBtn.onclick = () =>
     {
-        stopMinigameTimer();
-
         const answer = input.value.trim().toLowerCase();
         const correct = answer === "appel";
 
@@ -220,9 +226,129 @@ function createTypingMinigame()
         showScreen(gameScreen);
     };
 
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            submitBtn.click(); // Answer on Enter-key
+        }
+    });
+
     minigameContent.appendChild(question);
     minigameContent.appendChild(input);
     minigameContent.appendChild(submitBtn);
+}
+
+function createMultipleChoiceMinigame()
+{
+    const question = document.createElement("div");
+    question.className = "minigame-question";
+    question.textContent = "What is 'Apple' in Dutch?";
+    minigameContent.appendChild(question);
+
+    const options = ["Peer", "Appel", "Banaan", "Kers"];
+    const correctAnswer = "Appel";
+
+    options.forEach(option =>
+    {
+        const btn = document.createElement("button");
+        btn.className = "minigame-option";
+        btn.textContent = option;
+        btn.onclick = () =>
+        {
+            const correct = option === correctAnswer;
+
+            socket.emit(
+                "MINIGAME_FINISHED",
+                {
+                    playerId: socket.id,
+                    correct: correct
+                }
+            );
+
+            showScreen(gameScreen);
+        };
+
+        minigameContent.appendChild(btn);
+    });
+}
+
+function createFillInBlankMinigame()
+{
+    const question = document.createElement("div");
+    question.className = "minigame-question";
+    question.innerHTML = "Fill in the blank:<br><br>" + "I eat an <strong>_____</strong>";
+
+    const input = document.createElement("input");
+    input.className = "minigame-input";
+    input.placeholder = "Your answer...";
+
+    const submitBtn = document.createElement("button");
+    submitBtn.className = "minigame-submit";
+    submitBtn.textContent = "Submit";
+
+    submitBtn.onclick = () =>
+    {
+        const answer = input.value.trim().toLowerCase();
+
+        const correct = answer === "apple";
+
+        socket.emit(
+            "MINIGAME_FINISHED",
+            {
+                playerId: socket.id,
+                correct: correct
+            }
+        );
+
+        showScreen(gameScreen);
+    };
+
+    input.addEventListener("keydown", (e) =>
+    {
+        if (e.key === "Enter")
+        {
+            submitBtn.click();
+        }
+    });
+
+    minigameContent.appendChild(question);
+    minigameContent.appendChild(input);
+    minigameContent.appendChild(submitBtn);
+
+    input.focus();
+}
+
+function createSpotErrorMinigame()
+{
+    const question = document.createElement("div");
+    question.className = "minigame-question";
+    question.innerHTML = "Find the mistake:<br><br>" + "I goed to school yesterday.";
+    minigameContent.appendChild(question);
+
+    const options = ["goed", "school", "yesterday"];
+    const correctAnswer = "goed";
+
+    options.forEach(option =>
+    {
+        const btn = document.createElement("button");
+        btn.className = "minigame-option";
+        btn.textContent = option;
+        btn.onclick = () =>
+        {
+            const correct = option === correctAnswer;
+
+            socket.emit(
+                "MINIGAME_FINISHED",
+                {
+                    playerId: socket.id,
+                    correct: correct
+                }
+            );
+
+            showScreen(gameScreen);
+        };
+
+        minigameContent.appendChild(btn);
+    });
 }
 
 // Event Listeners
@@ -266,7 +392,12 @@ skipBtn.onclick = () => {
 };
 
 // Socket handlers
-socket.on("connect", () => log(`✅ Connected with id ${socket.id}`));
+socket.on("connect", () =>{
+    console.log(
+        "✅ Connected with id",
+        socket.id
+    );
+});
 
 socket.on("ROOM_JOINED", ({ roomCode }) => {
     showScreen(nameScreen);

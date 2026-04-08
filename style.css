@@ -371,37 +371,48 @@ section h2 {
 
 /* Submit buttons */
 .minigame-submit {
-
     width: 100%;
-
     font-size: 2rem;
-
     padding: 1.2rem;
-
     font-weight: bold;
-
     border-radius: 12px;
-
     background: linear-gradient(
         135deg,
         #2575fc,
         #6a11cb
     );
-
     color: white;
-
     border: none;
-
     cursor: pointer;
 }
 
 .minigame-submit:hover {
-
     transform: scale(1.04);
-
     background: linear-gradient(
         135deg,
         #1d5ee0,
         #5b0fb0
     );
+}
+
+/* Multiple choice options */
+.minigame-option {
+    width: 100%;
+    font-size: 1.8rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background: linear-gradient(
+        135deg,
+        #2575fc,
+        #6a11cb
+    );
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.15s;
+}
+
+.minigame-option:hover {
+    background: #dbe6ff;
+    transform: scale(1.03);
 }
