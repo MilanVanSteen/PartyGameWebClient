@@ -2,6 +2,8 @@
 const SERVER_URL = "https://partygame-gwgre4gjebg9h0fk.germanywestcentral-01.azurewebsites.net/";
 const socket = io(SERVER_URL);
 
+import { WORDS } from "./words.js";
+
 // DOM
 const joinScreen = document.getElementById("joinScreen");
 const roomInput = document.getElementById("roomInput");
@@ -151,8 +153,6 @@ function startMinigameTimer(duration) {
 
         if (timeLeft <= 0) {
             stopMinigameTimer();
-
-            socket.emit("MINIGAME_FORCE_FINISH", { playerId: socket.id, correct: false });
         }
 
     }, 1000);
@@ -173,182 +173,72 @@ function loadMinigame(type)
 
     switch (type)
     {
-        case "TypingAnswer":
-            createTypingMinigame();
-            break;
-        
-        case "MultipleChoice":
-            createMultipleChoiceMinigame();
-            break;
-        
-        case "FillInBlank":
-            createFillInBlankMinigame();
-            break;
-        
-        case "SpotError":
-            createSpotErrorMinigame();
+        case "WordRush":
+            createWordRushMinigame();
             break;
         
         default:
             console.warn("Unknown minigame:", type);
-            createTypingMinigame();
+            createWordRushMinigame();
             break;
     }
 }
 
-function createTypingMinigame()
+let minigameScore = 0;
+function createWordRushMinigame()
 {
+    const pool = WORDS.filter(w =>
+        w.skill === "productief" &&
+        w.direction === "nl-en"
+    );
+
+    let currentWord = null;
+
     const question = document.createElement("div");
     question.className = "minigame-question";
-    question.textContent = "Translate: Apple";
 
     const input = document.createElement("input");
     input.className = "minigame-input";
-    input.placeholder = "Type your answer...";
+    input.placeholder = "Translate...";
 
     const submitBtn = document.createElement("button");
     submitBtn.className = "minigame-submit";
     submitBtn.textContent = "Submit";
 
-    submitBtn.onclick = () =>
+    function nextWord()
+    {
+        currentWord = pool[Math.floor(Math.random() * pool.length)];
+
+        question.textContent = `Translate: ${currentWord.nl}`;
+        input.value = "";
+        input.focus();
+    }
+
+    function submitAnswer()
     {
         const answer = input.value.trim().toLowerCase();
-        const correct = answer === "appel";
+        const correct = answer === currentWord.en;
 
-        socket.emit(
-            "MINIGAME_FINISHED",
-            {
-                playerId: socket.id,
-                correct: correct
-            }
-        );
+        socket.emit("MINIGAME_ANSWER", {
+            playerId: socket.id,
+            correct
+        });
 
-        showScreen(gameScreen);
-    };
+        nextWord();
+    }
 
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            submitBtn.click(); // Answer on Enter-key
-        }
-    });
-
-    minigameContent.appendChild(question);
-    minigameContent.appendChild(input);
-    minigameContent.appendChild(submitBtn);
-}
-
-function createMultipleChoiceMinigame()
-{
-    const question = document.createElement("div");
-    question.className = "minigame-question";
-    question.textContent = "What is 'Apple' in Dutch?";
-    minigameContent.appendChild(question);
-
-    const options = ["Peer", "Appel", "Banaan", "Kers"];
-    const correctAnswer = "Appel";
-
-    options.forEach(option =>
-    {
-        const btn = document.createElement("button");
-        btn.className = "minigame-option";
-        btn.textContent = option;
-        btn.onclick = () =>
-        {
-            const correct = option === correctAnswer;
-
-            socket.emit(
-                "MINIGAME_FINISHED",
-                {
-                    playerId: socket.id,
-                    correct: correct
-                }
-            );
-
-            showScreen(gameScreen);
-        };
-
-        minigameContent.appendChild(btn);
-    });
-}
-
-function createFillInBlankMinigame()
-{
-    const question = document.createElement("div");
-    question.className = "minigame-question";
-    question.innerHTML = "Fill in the blank:<br><br>" + "I eat an <strong>_____</strong>";
-
-    const input = document.createElement("input");
-    input.className = "minigame-input";
-    input.placeholder = "Your answer...";
-
-    const submitBtn = document.createElement("button");
-    submitBtn.className = "minigame-submit";
-    submitBtn.textContent = "Submit";
-
-    submitBtn.onclick = () =>
-    {
-        const answer = input.value.trim().toLowerCase();
-
-        const correct = answer === "apple";
-
-        socket.emit(
-            "MINIGAME_FINISHED",
-            {
-                playerId: socket.id,
-                correct: correct
-            }
-        );
-
-        showScreen(gameScreen);
-    };
+    submitBtn.onclick = submitAnswer;
 
     input.addEventListener("keydown", (e) =>
     {
-        if (e.key === "Enter")
-        {
-            submitBtn.click();
-        }
+        if (e.key === "Enter") submitAnswer();
     });
 
     minigameContent.appendChild(question);
     minigameContent.appendChild(input);
     minigameContent.appendChild(submitBtn);
 
-    input.focus();
-}
-
-function createSpotErrorMinigame()
-{
-    const question = document.createElement("div");
-    question.className = "minigame-question";
-    question.innerHTML = "Find the mistake:<br><br>" + "I goed to school yesterday.";
-    minigameContent.appendChild(question);
-
-    const options = ["goed", "school", "yesterday"];
-    const correctAnswer = "goed";
-
-    options.forEach(option =>
-    {
-        const btn = document.createElement("button");
-        btn.className = "minigame-option";
-        btn.textContent = option;
-        btn.onclick = () =>
-        {
-            const correct = option === correctAnswer;
-
-            socket.emit(
-                "MINIGAME_FINISHED",
-                {
-                    playerId: socket.id,
-                    correct: correct
-                }
-            );
-
-            showScreen(gameScreen);
-        };
-
-        minigameContent.appendChild(btn);
-    });
+    nextWord();
 }
 
 // Event Listeners
@@ -495,8 +385,11 @@ socket.on("POWERUP_PHASE_END", () => {
 socket.on("MINIGAME_START", ({ minigame, duration }) => {
     console.log("Starting minigame:", minigame);
 
+    minigameScore = 0;
+
     showScreen(minigameScreen);
 
+    stopMinigameTimer();
     startMinigameTimer(duration);
 
     loadMinigame(minigame);
