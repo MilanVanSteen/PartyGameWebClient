@@ -284,13 +284,11 @@ section h2 {
 #minigameTimerFill {
     height: 100%;
     width: 100%;
-
     background: linear-gradient(
         90deg,
         #2575fc,
         #6a11cb
     );
-
     transition: width 1s linear;
 }
 
@@ -299,61 +297,41 @@ section h2 {
     display: flex;
     flex-direction: column;
     align-items: center;
-
     gap: 1.5rem;
-
     width: 100%;
-
     padding-top: 1rem;
 }
 
 /* Question text */
 .minigame-question {
-
     font-size: 2rem;
     font-weight: bold;
-
     text-align: center;
-
     padding: 1.5rem;
-
     width: 100%;
-
     border-radius: 12px;
-
     background: linear-gradient(
         135deg,
         #f5f7ff,
         #e6ecff
     );
-
-    box-shadow:
-        0 6px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
 /* Highlighted keyword */
 .minigame-highlight {
-
     color: #6a11cb;
-
     font-size: 2.2rem;
 }
 
 /* Inputs */
 .minigame-input {
-
     width: 100%;
-
     font-size: 2rem;
-
     padding: 1rem;
-
     text-align: center;
-
     border-radius: 12px;
-
     border: 2px solid #ccc;
-
     transition:
         border 0.2s,
         box-shadow 0.2s;
@@ -415,4 +393,51 @@ section h2 {
 .minigame-option:hover {
     background: #dbe6ff;
     transform: scale(1.03);
+}
+
+#minigameScore {
+    font-size: 2rem;
+    font-weight: bold;
+    justify-content: center;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.memory-card {
+    font-size: 12px;
+    font-weight: bold;
+    color: black;
+    padding: 40px;
+    min-height: 30px;
+    background: white;
+    border: 2px solid #333;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.memory-card.matched {
+    background: lightgreen;
+    cursor: default;
+}
+
+.snake-clue {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.snake-progress {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #aaa;
+    font-family: Arial;
 }

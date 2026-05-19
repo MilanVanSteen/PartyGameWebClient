@@ -3,6 +3,9 @@ const SERVER_URL = "https://partygame-gwgre4gjebg9h0fk.germanywestcentral-01.azu
 const socket = io(SERVER_URL);
 
 import { WORDS } from "./words.js";
+import { createWordRush } from "./minigames/wordRush.js";
+import { createMemoryMatch } from "./minigames/memoryMatch.js";
+import { createWordSnake } from "./minigames/wordSnake.js";
 
 // DOM
 const joinScreen = document.getElementById("joinScreen");
@@ -45,6 +48,9 @@ const minigameTimerText = document.getElementById("minigameTimerText");
 const minigameTimerFill = document.getElementById("minigameTimerFill");
 let minigameInterval = null;
 const minigameContent = document.getElementById("minigameContent");
+let minigameScore = 0;
+const minigameScoreEl = document.getElementById("minigameScore");
+let activeMinigame = null;
 
 // Helpers
 function showScreen(screen) {
@@ -167,79 +173,221 @@ function stopMinigameTimer() {
     minigameTimerFill.style.width = "0%";
 }
 
+function clearMinigame() {
+    stopMinigameTimer();
+
+    minigameContent.innerHTML = "";
+
+    minigameScore = 0;
+    minigameScoreEl.textContent = `Score: ${minigameScore}`;
+}
+
 function loadMinigame(type)
 {
-    minigameContent.innerHTML = "";
+    if (activeMinigame?.stop) {
+        activeMinigame.stop();
+        activeMinigame = null;
+    }
 
     switch (type)
     {
         case "WordRush":
-            createWordRushMinigame();
+            activeMinigame = createWordRush({
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                socket
+            });
+            break;
+
+        case "MemoryMatch":
+            activeMinigame = createMemoryMatch({
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                socket
+            });
+            break;
+
+        case "WordSnake":
+            activeMinigame = createWordSnake({
+                socket,
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                onAnswer: (data) => {
+                    socket.emit("MINIGAME_ANSWER", {
+                        playerId: socket.id,
+                        ...data
+                    });
+                }
+            });
             break;
         
         default:
             console.warn("Unknown minigame:", type);
-            createWordRushMinigame();
+            activeMinigame = createWordSnake({
+                socket,
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                onAnswer: (data) => {
+                    socket.emit("MINIGAME_ANSWER", {
+                        playerId: socket.id,
+                        ...data
+                    });
+                }
+            });
             break;
     }
 }
 
-let minigameScore = 0;
-function createWordRushMinigame()
-{
-    const pool = WORDS.filter(w =>
-        w.skill === "productief" &&
-        w.direction === "nl-en"
-    );
+// function createWordRush()
+// {
+//     const pool = WORDS.filter(w =>
+//         w.skill === "productief" &&
+//         w.direction === "nl-en"
+//     );
 
-    let currentWord = null;
+//     let currentWord = null;
 
-    const question = document.createElement("div");
-    question.className = "minigame-question";
+//     const question = document.createElement("div");
+//     question.className = "minigame-question";
 
-    const input = document.createElement("input");
-    input.className = "minigame-input";
-    input.placeholder = "Translate...";
+//     const input = document.createElement("input");
+//     input.className = "minigame-input";
+//     input.placeholder = "Translate...";
 
-    const submitBtn = document.createElement("button");
-    submitBtn.className = "minigame-submit";
-    submitBtn.textContent = "Submit";
+//     const submitBtn = document.createElement("button");
+//     submitBtn.className = "minigame-submit";
+//     submitBtn.textContent = "Submit";
 
-    function nextWord()
-    {
-        currentWord = pool[Math.floor(Math.random() * pool.length)];
+//     function nextWord()
+//     {
+//         input.style.border = "";
 
-        question.textContent = `Translate: ${currentWord.nl}`;
-        input.value = "";
-        input.focus();
-    }
+//         currentWord = pool[Math.floor(Math.random() * pool.length)];
 
-    function submitAnswer()
-    {
-        const answer = input.value.trim().toLowerCase();
-        const correct = answer === currentWord.en;
+//         question.textContent = `Translate: ${currentWord.nl}`;
+//         input.value = "";
+//         input.focus();
+//     }
 
-        socket.emit("MINIGAME_ANSWER", {
-            playerId: socket.id,
-            correct
-        });
+//     function submitAnswer()
+//     {
+//         const answer = input.value.trim().toLowerCase();
+//         const correct = answer === currentWord.en;
 
-        nextWord();
-    }
+//         if (correct) {
+//             minigameScore += 1;
+//             minigameScoreEl.textContent = `Score: ${minigameScore}`;
+//         } 
 
-    submitBtn.onclick = submitAnswer;
+//         socket.emit("MINIGAME_ANSWER", {
+//             playerId: socket.id,
+//             correct
+//         });
 
-    input.addEventListener("keydown", (e) =>
-    {
-        if (e.key === "Enter") submitAnswer();
-    });
+//         nextWord();
+//     }
 
-    minigameContent.appendChild(question);
-    minigameContent.appendChild(input);
-    minigameContent.appendChild(submitBtn);
+//     submitBtn.onclick = submitAnswer;
 
-    nextWord();
-}
+//     input.addEventListener("keydown", (e) =>
+//     {
+//         if (e.key === "Enter") submitAnswer();
+//     });
+
+//     minigameContent.appendChild(question);
+//     minigameContent.appendChild(input);
+//     minigameContent.appendChild(submitBtn);
+
+//     nextWord();
+// }
+
+// function createMemoryMatch() {
+//     const pool = WORDS.filter(w =>
+//         w.skill === "productief" &&
+//         w.direction === "nl-en"
+//     ).slice(0, 6);
+
+//     const cards = [];
+
+//     pool.forEach(word => {
+//         cards.push({ id: word.id, value: word.en });
+//         cards.push({ id: word.id, value: word.nl });
+//     });
+
+//     cards.sort(() => Math.random() - 0.5);
+
+//     let firstCard = null;
+//     let lock = false;
+
+//     const grid = document.createElement("div");
+//     grid.style.display = "grid";
+//     grid.style.gridTemplateColumns = "repeat(4, 1fr)";
+//     grid.style.gap = "10px";
+
+//     cards.forEach(cardData => {
+//         const card = document.createElement("button");
+
+//         card.textContent = "❓";
+//         card.dataset.id = cardData.id;
+//         card.dataset.value = cardData.value;
+//         card.dataset.flipped = "false";
+//         card.classList.add("memory-card");
+
+//         card.onclick = () => {
+//             if (lock || card.dataset.flipped === "true") return;
+
+//             card.textContent = cardData.value;
+//             card.dataset.flipped = "true";
+
+//             if (!firstCard) {
+//                 firstCard = card;
+//                 return;
+//             }
+
+//             if (firstCard.dataset.id === card.dataset.id) {
+//                 firstCard.classList.add("matched");
+//                 card.classList.add("matched");
+
+//                 firstCard = null;
+
+//                 minigameScore += 1;
+//                 minigameScoreEl.textContent = `Score: ${minigameScore}`;
+
+//                 socket.emit("MINIGAME_ANSWER", {
+//                     playerId: socket.id,
+//                     correct: true
+//                 });
+//             } 
+//             else {
+//                 lock = true;
+
+//                 setTimeout(() => {
+//                     card.textContent = "❓";
+//                     firstCard.textContent = "❓";
+
+//                     card.dataset.flipped = "false";
+//                     firstCard.dataset.flipped = "false";
+
+//                     firstCard = null;
+//                     lock = false;
+
+//                     socket.emit("MINIGAME_ANSWER", {
+//                         playerId: socket.id,
+//                         correct: false
+//                     });
+//                 }, 700);
+//             }
+//         };
+
+//         grid.appendChild(card);
+//     });
+
+//     minigameContent.appendChild(grid);
+// }
 
 // Event Listeners
 joinBtn.addEventListener("click", () => {
@@ -385,7 +533,7 @@ socket.on("POWERUP_PHASE_END", () => {
 socket.on("MINIGAME_START", ({ minigame, duration }) => {
     console.log("Starting minigame:", minigame);
 
-    minigameScore = 0;
+    clearMinigame();
 
     showScreen(minigameScreen);
 
@@ -399,6 +547,11 @@ socket.on("MINIGAME_ENDED", () => {
     console.log("Minigame ended");
 
     stopMinigameTimer();
+
+    if (activeMinigame?.stop) {
+        activeMinigame.stop();
+        activeMinigame = null;
+    }
 
     showScreen(gameScreen);
 });
