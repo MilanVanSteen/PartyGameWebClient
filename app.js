@@ -6,6 +6,7 @@ import { WORDS } from "./words.js";
 import { createWordRush } from "./minigames/wordRush.js";
 import { createMemoryMatch } from "./minigames/memoryMatch.js";
 import { createWordSnake } from "./minigames/wordSnake.js";
+import { createRocketFuel } from "./minigames/rocketFuel.js";
 
 // DOM
 const joinScreen = document.getElementById("joinScreen");
@@ -77,8 +78,6 @@ function updatePlayerList(players) {
 }
 
 function startCountdown(duration) {
-    stopMinigameTimer();
-
     let timeLeft = Math.floor(duration);
 
     powerupTimerText.textContent = timeLeft;
@@ -90,7 +89,6 @@ function startCountdown(duration) {
 
         // Shrink bar
         const percent = (timeLeft / duration) * 100;
-
         powerupTimerFill.style.width = percent + "%";
 
         if (timeLeft <= 0) {
@@ -103,7 +101,6 @@ function startCountdown(duration) {
 }
 
 function stopCountdown() {
-
     if (countdownInterval) 
     {
         clearInterval(countdownInterval);
@@ -148,24 +145,26 @@ function startMinigameTimer(duration) {
     minigameTimerFill.style.width = "100%";
 
     minigameInterval = setInterval(() => {
-
         timeLeft--;
-
         minigameTimerText.textContent = timeLeft;
 
         const percent = (timeLeft / duration) * 100;
-
         minigameTimerFill.style.width = percent + "%";
 
         if (timeLeft <= 0) {
             stopMinigameTimer();
+            
+            socket.emit("MINIGAME_TIMER_FINISHED", {
+                playerId: socket.id
+            });
         }
 
     }, 1000);
 }
 
 function stopMinigameTimer() {
-    if (minigameInterval) {
+    if (minigameInterval) 
+    {
         clearInterval(minigameInterval);
         minigameInterval = null;
     }
@@ -191,12 +190,23 @@ function loadMinigame(type)
 
     switch (type)
     {
-        case "WordRush":
+        case "WordRushNL":
             activeMinigame = createWordRush({
                 WORDS,
                 minigameContent,
                 scoreEl: minigameScoreEl,
-                socket
+                socket,
+                language: "nl-en"
+            });
+            break;
+
+        case "WordRushEN":
+            activeMinigame = createWordRush({
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                socket,
+                language: "en-nl"
             });
             break;
 
@@ -223,20 +233,23 @@ function loadMinigame(type)
                 }
             });
             break;
-        
-        default:
-            console.warn("Unknown minigame:", type);
-            activeMinigame = createWordSnake({
-                socket,
+
+        case "RocketFuel":
+            activeMinigame = createRocketFuel({
                 WORDS,
                 minigameContent,
                 scoreEl: minigameScoreEl,
-                onAnswer: (data) => {
-                    socket.emit("MINIGAME_ANSWER", {
-                        playerId: socket.id,
-                        ...data
-                    });
-                }
+                socket
+            });
+            break;
+        
+        default:
+            console.warn("Unknown minigame:", type);
+            activeMinigame = createRocketFuel({
+                WORDS,
+                minigameContent,
+                scoreEl: minigameScoreEl,
+                socket
             });
             break;
     }

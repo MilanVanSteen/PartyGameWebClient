@@ -1,11 +1,28 @@
-export function createWordRush({ WORDS, minigameContent, scoreEl, socket })
+export function createWordRush({ WORDS, minigameContent, scoreEl, socket, language })
 {
     let score = 0;
+    let locked = false;
+    const PENALTY_TIME = 1500;
 
-    const pool = WORDS.filter(w =>
-        w.skill === "productief" &&
-        w.direction === "nl-en"
-    );
+    // Words
+    let pool = [];
+    let deck = [];
+
+    function initPool() {
+        // Filter words based on language
+        pool = WORDS.filter(w => w.direction === language && w.nl && w.en);
+        deck = shuffle([...pool]);
+    }
+    initPool();
+
+    function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
 
     let currentWord = null;
 
@@ -21,29 +38,70 @@ export function createWordRush({ WORDS, minigameContent, scoreEl, socket })
     submitBtn.textContent = "Submit";
 
     function nextWord() {
-        currentWord = pool[Math.floor(Math.random() * pool.length)];
+        if (deck.length === 0) {
+            deck = shuffle([...pool]); // fresh shuffled cycle
+        }
 
-        question.textContent = `Translate: ${currentWord.nl}`;
+        currentWord = deck.pop();
+
+        if(language === "nl-en") {
+            question.textContent = `Translate: ${currentWord.nl} (NL)`;
+        }
+        else if(language === "en-nl") {
+            question.textContent = `Translate: ${currentWord.en} (EN)`;
+        }
         input.value = "";
         input.focus();
     }
 
     function submitAnswer()
     {
+        if (locked) return;
+
         const answer = input.value.trim().toLowerCase();
-        const correct = answer === currentWord.en.toLowerCase();
+        let correct;
+        
+        if(language === "nl-en") {
+            correct = answer === currentWord.en.toLowerCase();
+        } else if(language === "en-nl") {
+            correct = answer === currentWord.nl.toLowerCase();
+        }
 
         if (correct) {
             score++;
             scoreEl.textContent = `Score: ${score}`;
+
+            nextWord();
+            
+            // For this minigame no minus points, just lock input for a short time
+            socket.emit("MINIGAME_ANSWER", {
+                playerId: socket.id,
+                correct
+            });
         } 
+        else{
+            // Lock input and show penalty message
+            locked = true;
+            input.disabled = true;
+            submitBtn.disabled = true;
 
-        socket.emit("MINIGAME_ANSWER", {
-            playerId: socket.id,
-            correct
-        });
+            let answerToShow = "";
+            if(language === "nl-en") {
+                answerToShow = currentWord.en.toLowerCase();
+            } else if(language === "en-nl") {
+                answerToShow = currentWord.nl.toLowerCase();
+            }
 
-        nextWord();
+            question.textContent = `Wrong! - Correct answer: ${answerToShow}`;
+
+            setTimeout(() => {
+                locked = false;
+                input.disabled = false;
+                submitBtn.disabled = false;
+
+                nextWord();
+            }, PENALTY_TIME);
+        }
     }
 
     submitBtn.onclick = submitAnswer;

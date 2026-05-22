@@ -1,10 +1,7 @@
 export function createMemoryMatch({ WORDS, minigameContent, scoreEl, socket }) {
     let score = 0;
 
-    const pool = WORDS.filter(w =>
-        w.skill === "productief" &&
-        w.direction === "nl-en"
-    ).sort(() => Math.random() - 0.5).slice(0, 6);
+    const pool = WORDS.sort(() => Math.random() - 0.5).slice(0, 6);
 
     const cards = [];
 
@@ -67,11 +64,6 @@ export function createMemoryMatch({ WORDS, minigameContent, scoreEl, socket }) {
 
                     firstCard = null;
                     lock = false;
-
-                    socket.emit("MINIGAME_ANSWER", {
-                        playerId: socket.id,
-                        correct: false
-                    });
                 }, 700);
             }
         };

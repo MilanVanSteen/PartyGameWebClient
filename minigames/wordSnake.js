@@ -123,11 +123,6 @@ export function createWordSnake({ socket, WORDS, minigameContent, scoreEl, onAns
     document.addEventListener("keydown", keyHandler);
 
     function emit(correct) {
-        socket.emit("MINIGAME_ANSWER", {
-            playerId: socket.id,
-            correct
-        });
-
         onAnswer?.({ correct });
     }
 
@@ -177,8 +172,15 @@ export function createWordSnake({ socket, WORDS, minigameContent, scoreEl, onAns
             }
         }
 
-        if (!ate) {
+        const desiredLength = Math.max(1, score + 1);
+
+        while (state.snake.length > desiredLength) {
             state.snake.pop();
+        }
+
+        // safety
+        if (state.snake.length === 0) {
+            state.snake = [{ x: 10, y: 10 }];
         }
     }
 
