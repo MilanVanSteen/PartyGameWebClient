@@ -53,6 +53,9 @@ let minigameScore = 0;
 const minigameScoreEl = document.getElementById("minigameScore");
 let activeMinigame = null;
 
+const endScreen = document.getElementById("endScreen");
+const winnerText = document.getElementById("winnerText");
+
 // Helpers
 function showScreen(screen) {
     joinScreen.classList.add("hidden");
@@ -61,6 +64,7 @@ function showScreen(screen) {
     gameScreen.classList.add("hidden");
     powerupScreen.classList.add("hidden");
     minigameScreen.classList.add("hidden");
+    endScreen.classList.add("hidden");
 
     screen.classList.remove("hidden");
 }
@@ -569,3 +573,12 @@ socket.on("MINIGAME_ENDED", () => {
     showScreen(gameScreen);
 });
 
+socket.on("GAME_ENDED", ({ winnerName }) => {
+    console.log("Game ended. Winner:", winnerName);
+
+    showScreen(endScreen);
+
+    if (winnerText) {
+        winnerText.textContent = `Winner: ${winnerName}`;
+    }
+});

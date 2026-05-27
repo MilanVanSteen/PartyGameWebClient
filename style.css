@@ -536,3 +536,9 @@ section h2 {
 .rocket-option:active {
     transform: scale(0.98);
 }
+
+#winnerText {
+    font-size: 2rem;
+    font-weight: bold;
+    justify-content: center;
+}
