@@ -44,7 +44,8 @@ main {
 #waitingScreen,
 #gameScreen,
 #powerupScreen,
-#minigameScreen {
+#minigameScreen,
+#endScreen {
     background: #fff;
     border-radius: 15px;
     padding: 2rem;
