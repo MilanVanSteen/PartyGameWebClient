@@ -249,164 +249,22 @@ function loadMinigame(type)
         
         default:
             console.warn("Unknown minigame:", type);
-            activeMinigame = createRocketFuel({
+            activeMinigame = createWordSnake({
+                socket,
                 WORDS,
                 minigameContent,
                 scoreEl: minigameScoreEl,
-                socket
+                onAnswer: (data) => {
+                    socket.emit("MINIGAME_ANSWER", {
+                        playerId: socket.id,
+                        ...data
+                    });
+                }
             });
             break;
     }
 }
 
-// function createWordRush()
-// {
-//     const pool = WORDS.filter(w =>
-//         w.skill === "productief" &&
-//         w.direction === "nl-en"
-//     );
-
-//     let currentWord = null;
-
-//     const question = document.createElement("div");
-//     question.className = "minigame-question";
-
-//     const input = document.createElement("input");
-//     input.className = "minigame-input";
-//     input.placeholder = "Translate...";
-
-//     const submitBtn = document.createElement("button");
-//     submitBtn.className = "minigame-submit";
-//     submitBtn.textContent = "Submit";
-
-//     function nextWord()
-//     {
-//         input.style.border = "";
-
-//         currentWord = pool[Math.floor(Math.random() * pool.length)];
-
-//         question.textContent = `Translate: ${currentWord.nl}`;
-//         input.value = "";
-//         input.focus();
-//     }
-
-//     function submitAnswer()
-//     {
-//         const answer = input.value.trim().toLowerCase();
-//         const correct = answer === currentWord.en;
-
-//         if (correct) {
-//             minigameScore += 1;
-//             minigameScoreEl.textContent = `Score: ${minigameScore}`;
-//         } 
-
-//         socket.emit("MINIGAME_ANSWER", {
-//             playerId: socket.id,
-//             correct
-//         });
-
-//         nextWord();
-//     }
-
-//     submitBtn.onclick = submitAnswer;
-
-//     input.addEventListener("keydown", (e) =>
-//     {
-//         if (e.key === "Enter") submitAnswer();
-//     });
-
-//     minigameContent.appendChild(question);
-//     minigameContent.appendChild(input);
-//     minigameContent.appendChild(submitBtn);
-
-//     nextWord();
-// }
-
-// function createMemoryMatch() {
-//     const pool = WORDS.filter(w =>
-//         w.skill === "productief" &&
-//         w.direction === "nl-en"
-//     ).slice(0, 6);
-
-//     const cards = [];
-
-//     pool.forEach(word => {
-//         cards.push({ id: word.id, value: word.en });
-//         cards.push({ id: word.id, value: word.nl });
-//     });
-
-//     cards.sort(() => Math.random() - 0.5);
-
-//     let firstCard = null;
-//     let lock = false;
-
-//     const grid = document.createElement("div");
-//     grid.style.display = "grid";
-//     grid.style.gridTemplateColumns = "repeat(4, 1fr)";
-//     grid.style.gap = "10px";
-
-//     cards.forEach(cardData => {
-//         const card = document.createElement("button");
-
-//         card.textContent = "❓";
-//         card.dataset.id = cardData.id;
-//         card.dataset.value = cardData.value;
-//         card.dataset.flipped = "false";
-//         card.classList.add("memory-card");
-
-//         card.onclick = () => {
-//             if (lock || card.dataset.flipped === "true") return;
-
-//             card.textContent = cardData.value;
-//             card.dataset.flipped = "true";
-
-//             if (!firstCard) {
-//                 firstCard = card;
-//                 return;
-//             }
-
-//             if (firstCard.dataset.id === card.dataset.id) {
-//                 firstCard.classList.add("matched");
-//                 card.classList.add("matched");
-
-//                 firstCard = null;
-
-//                 minigameScore += 1;
-//                 minigameScoreEl.textContent = `Score: ${minigameScore}`;
-
-//                 socket.emit("MINIGAME_ANSWER", {
-//                     playerId: socket.id,
-//                     correct: true
-//                 });
-//             } 
-//             else {
-//                 lock = true;
-
-//                 setTimeout(() => {
-//                     card.textContent = "❓";
-//                     firstCard.textContent = "❓";
-
-//                     card.dataset.flipped = "false";
-//                     firstCard.dataset.flipped = "false";
-
-//                     firstCard = null;
-//                     lock = false;
-
-//                     socket.emit("MINIGAME_ANSWER", {
-//                         playerId: socket.id,
-//                         correct: false
-//                     });
-//                 }, 700);
-//             }
-//         };
-
-//         grid.appendChild(card);
-//     });
-
-//     minigameContent.appendChild(grid);
-// }
-
-// Event Listeners
 joinBtn.addEventListener("click", () => {
     const roomCode = roomInput.value.trim().toUpperCase();
     if (!roomCode) return alert("Enter room code!");

@@ -129,10 +129,10 @@ export function createRocketFuel({ WORDS, minigameContent, scoreEl, socket}) {
 
         if (correct) {
             score++;            
-            distance += 10; // Move rocket forward
+            distance += 2; // Move rocket forward
         } else if(!correct) {
             score = Math.max(0, score - 1);
-            distance = Math.max(0, distance - 10); // Penalty
+            distance = Math.max(0, distance - 2); // Penalty
         }
 
         updateScore();
