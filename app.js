@@ -440,3 +440,15 @@ socket.on("GAME_ENDED", ({ winnerName }) => {
         winnerText.textContent = `Winner: ${winnerName}`;
     }
 });
+
+socket.on("ROOM_RESET", () => {
+    console.log("Room was reset - returning to join screen");
+
+    // reset UI state
+    showScreen(joinScreen);
+
+    roomInput.value = "";
+    nameInput.value = "";
+
+    playerList.innerHTML = "";
+});
