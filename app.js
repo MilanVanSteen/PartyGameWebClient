@@ -34,6 +34,7 @@ const diceImages = [
 
 const bonusText = document.getElementById("bonusText");
 const shieldText = document.getElementById("shieldText");
+const stuckText = document.getElementById("stuckText");
 let addedStepsPending = false;
 let shieldActive = false;
 
@@ -337,6 +338,10 @@ socket.on("GAME_STARTED", () => {
 
 socket.on('DICE_ROLL_START', ({ roll }) => {
     animateDiceRoll(roll);
+});
+
+socket.on("SHOW_PLAYER_STUCK", ({ isStuck }) => {
+    stuckText.classList.toggle("hidden", !isStuck);
 });
 
 socket.on("POWERUP_PHASE_START", ({ inventory, duration }) => {
