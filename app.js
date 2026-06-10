@@ -441,9 +441,11 @@ socket.on("GAME_ENDED", ({ winnerName }) => {
     }
 });
 
-socket.on("ROOM_RESET", () => {
-    console.log("Room was reset - returning to join screen");
-
+socket.on("GAME_STOPPED", () => {
+    console.log("Game ended by host");
+    showLobby();
+});
+function showLobby() {
     // reset UI state
     showScreen(joinScreen);
 
@@ -451,4 +453,4 @@ socket.on("ROOM_RESET", () => {
     nameInput.value = "";
 
     playerList.innerHTML = "";
-});
+}
