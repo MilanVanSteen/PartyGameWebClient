@@ -322,10 +322,12 @@ socket.on("NAME_ERROR", ({ message }) => {
     nameLog.style.color = "red";
 });
 
+socket.on("NAME_CONFIRMED", () => {
+    showScreen(waitingScreen);
+});
+
 socket.on("PLAYER_JOINED", ({ players }) => {
     updatePlayerList(players);
-    nameScreen.classList.add("hidden");
-    showScreen(waitingScreen);
 });
 
 socket.on("PLAYER_LEFT", ({ players }) => {
