@@ -89,12 +89,12 @@ export function createRocketFuel({ WORDS, minigameContent, scoreEl, socket}) {
 
         const correctAnswer = getCorrectAnswer(currentWord);
 
-        // Get 3 random wrong answers
+        // Get 5 random wrong answers
         const wrongAnswers = shuffle(
             pool
                 .filter(w => getCorrectAnswer(w) !== correctAnswer && w.language === currentWord.language)
                 .map(w => getCorrectAnswer(w))
-        ).slice(0, 3);
+        ).slice(0, 5);
 
         // Combine and shuffle options
         const options = shuffle([
