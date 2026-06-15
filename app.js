@@ -54,7 +54,7 @@ let minigameScore = 0;
 const minigameScoreEl = document.getElementById("minigameScore");
 let activeMinigame = null;
 
-const instructionsEl = document.getElementById("minigameInstructions");
+const minigameInstructionsEl = document.getElementById("minigameInstructions");
 
 const endScreen = document.getElementById("endScreen");
 const winnerText = document.getElementById("winnerText");
@@ -84,6 +84,7 @@ function updatePlayerList(players) {
     });
 }
 
+// Powerup
 function startCountdown(duration) {
     let timeLeft = Math.floor(duration);
 
@@ -117,6 +118,7 @@ function stopCountdown() {
     powerupTimerFill.style.width = "0%";
 }
 
+// Dice
 function animateDiceRoll(finalRoll) {
     let intervalTime = 200;
     let elapsed = 0;
@@ -183,7 +185,7 @@ function clearMinigame() {
     stopMinigameTimer();
 
     minigameContent.innerHTML = "";
-    instructionsEl.textContent = "";
+    minigameInstructionsEl.textContent = "";
 
     minigameScore = 0;
     minigameScoreEl.textContent = `Score: ${minigameScore}`;
@@ -289,7 +291,7 @@ function loadMinigame(type)
 }
 
 function setMinigameInstructions(text) {
-    instructionsEl.textContent = text;
+    minigameInstructionsEl.textContent = text;
 }
 
 joinBtn.addEventListener("click", () => {

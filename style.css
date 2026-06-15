@@ -554,3 +554,13 @@ section h2 {
     margin-bottom: 1rem;
     line-height: 1.4;
 }
+
+#powerupInstructions {
+    padding: 0.75rem 1rem;
+    background: #f5f7ff;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
