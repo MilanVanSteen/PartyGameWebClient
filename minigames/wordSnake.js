@@ -102,18 +102,22 @@ export function createWordSnake({ socket, WORDS, minigameContent, scoreEl, onAns
 
         switch (e.key) {
             case "w":
+            case "ArrowUp":
                 if (state.dir.y === 1) break;
                 state.dir = { x: 0, y: -1 };
                 break;
             case "s":
+            case "ArrowDown":
                 if (state.dir.y === -1) break;
                 state.dir = { x: 0, y: 1 };
                 break;
             case "a":
+            case "ArrowLeft":
                 if (state.dir.x === 1) break;
                 state.dir = { x: -1, y: 0 };
                 break;
             case "d":
+            case "ArrowRight":
                 if (state.dir.x === -1) break;
                 state.dir = { x: 1, y: 0 };
                 break;

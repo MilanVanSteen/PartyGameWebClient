@@ -54,6 +54,8 @@ let minigameScore = 0;
 const minigameScoreEl = document.getElementById("minigameScore");
 let activeMinigame = null;
 
+const instructionsEl = document.getElementById("minigameInstructions");
+
 const endScreen = document.getElementById("endScreen");
 const winnerText = document.getElementById("winnerText");
 
@@ -181,6 +183,7 @@ function clearMinigame() {
     stopMinigameTimer();
 
     minigameContent.innerHTML = "";
+    instructionsEl.textContent = "";
 
     minigameScore = 0;
     minigameScoreEl.textContent = `Score: ${minigameScore}`;
@@ -196,6 +199,9 @@ function loadMinigame(type)
     switch (type)
     {
         case "WordRushNL":
+            setMinigameInstructions(
+                "Instructions: Type the English translation of the Dutch word as quickly as possible. Correct translation is +1 point, wrong translation a short penalty before the next word appears."
+            );
             activeMinigame = createWordRush({
                 WORDS,
                 minigameContent,
@@ -203,9 +209,13 @@ function loadMinigame(type)
                 socket,
                 language: "nl-en"
             });
+            setMinigameInstructions("Find as many Dutch words as you can!");
             break;
 
         case "WordRushEN":
+            setMinigameInstructions(
+                "Instructions: Type the Dutch translation of the English word as quickly as possible. Correct translation is +1 point, wrong translation a short penalty before the next word appears."
+            );
             activeMinigame = createWordRush({
                 WORDS,
                 minigameContent,
@@ -216,6 +226,9 @@ function loadMinigame(type)
             break;
 
         case "MemoryMatch":
+            setMinigameInstructions(
+                "Instructions: Match the words with their translations by clicking on them. Correct matches are +1 point and won't turn back around."
+            );
             activeMinigame = createMemoryMatch({
                 WORDS,
                 minigameContent,
@@ -225,6 +238,9 @@ function loadMinigame(type)
             break;
 
         case "WordSnake":
+            setMinigameInstructions(
+                "Instructions: Use WASD or Arrow Keys to control the snake. Collect letters in the correct order of the word translated to spell the English translation. Correct letter is +1 point, wrong letter is -1 point."
+            );
             activeMinigame = createWordSnake({
                 socket,
                 WORDS,
@@ -240,6 +256,9 @@ function loadMinigame(type)
             break;
 
         case "RocketFuel":
+            setMinigameInstructions(
+                "Instructions: Choose the correct translation to fuel your rocket and try to reach the finish line. Correct translation is +1 point, wrong translation is -1 point."
+            );
             activeMinigame = createRocketFuel({
                 WORDS,
                 minigameContent,
@@ -250,6 +269,9 @@ function loadMinigame(type)
         
         default:
             console.warn("Unknown minigame:", type);
+            setMinigameInstructions(
+                "Instructions: Use WASD or Arrow Keys to control the snake. Collect letters in the correct order of the word translated to spell the English translation. Correct letter is +1 point, wrong letter is -1 point."
+            );
             activeMinigame = createWordSnake({
                 socket,
                 WORDS,
@@ -264,6 +286,10 @@ function loadMinigame(type)
             });
             break;
     }
+}
+
+function setMinigameInstructions(text) {
+    instructionsEl.textContent = text;
 }
 
 joinBtn.addEventListener("click", () => {
