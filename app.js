@@ -211,7 +211,6 @@ function loadMinigame(type)
                 socket,
                 language: "nl-en"
             });
-            setMinigameInstructions("Find as many Dutch words as you can!");
             break;
 
         case "WordRushEN":
